@@ -1,4 +1,19 @@
-mlruns/
-artifacts/
+# Env
 .env
 venv/
+
+# Data artifacts
+data/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Runtime / Generated Artifacts
+artifacts/*
+logs/*
+mlruns/
+
+# Dev dependencies
+requirements-dev.txt
