@@ -7,6 +7,15 @@ from src.utilities.logger import app_logger
 logger = app_logger(__name__)
 load_dotenv()
 
+def get_logger(name: str):
+    """
+    Returns a module-specific logger.
+    Logger creation is deferred to runtime to ensure
+    RUN_ID is already set.
+    """
+    return app_logger(name)
+
+
 def data_downloader(kaggle_uri: str) -> None:
     config = load_config("configs/config.yaml")
     RAW_DATA_PATH = Path(config["data"]["raw_data_dir"])
