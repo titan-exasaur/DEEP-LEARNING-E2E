@@ -1,11 +1,10 @@
 import tensorflow as tf
-from tensorflow.keras import layers
 from src.utilities.logger import app_logger
 from src.utilities.utils import load_config
 
 logger = app_logger(__name__)
 
-class DataLoader:
+class DataIngestion:
     """
     Handles loading and preprocessing of image datasets for training and evaluation.
 
@@ -28,7 +27,7 @@ class DataLoader:
 
     def __init__(self):
         """
-        Initializes the DataLoader by reading dataset-related parameters
+        Initializes the DataIngestion by reading dataset-related parameters
         from `model_parameters.yaml`.
 
         Configuration keys used:
@@ -38,33 +37,28 @@ class DataLoader:
         - BATCH_SIZE: Number of samples per batch
         - SEED: Random seed for reproducibility
         """
-        self.config = load_config("configs/model_parameters.yaml")
-        self.data_config = self.config["data_config"]
+        config = load_config("configs/model_parameters.yaml")
+        data_config = config["data_config"]
 
-        self.TRAIN_DIR = self.data_config["TRAIN_DIR"]
-        self.TEST_DIR = self.data_config["TEST_DIR"]
-        self.IMG_SIZE = tuple(self.data_config["IMG_SIZE"])
-        self.BATCH_SIZE = self.data_config["BATCH_SIZE"]
-        self.SEED = self.data_config["SEED"]
+        self.TRAIN_DIR = data_config["TRAIN_DIR"]
+        self.TEST_DIR = data_config["TEST_DIR"]
+        self.IMG_SIZE = tuple(data_config["IMG_SIZE"])
+        self.BATCH_SIZE = data_config["BATCH_SIZE"]
+        self.SEED = data_config["SEED"]
 
-        self.normalization = layers.Rescaling(1.0 / 255.0)
-
-    def load_data(self):
+    def load(self):
         """
-        Loads, preprocesses, and optimizes the training and test datasets.
+        Loads raw training and test datasets from disk and extracts
+        dataset-level metadata.
 
-        Processing steps:
-        - Load images from directory using TensorFlow utilities
-        - Resize images to configured IMG_SIZE
-        - Normalize pixel values to [0, 1]
-        - Enable parallel mapping and prefetching for performance
+        No transformations or preprocessing are applied at this stage.
 
         Returns:
             train_ds (tf.data.Dataset):
-                Batched and normalized training dataset.
+                Raw training dataset with images resized to IMG_SIZE.
 
             test_ds (tf.data.Dataset):
-                Batched and normalized test dataset (no shuffling).
+                Raw test dataset with images resized to IMG_SIZE.
 
             class_names (List[str]):
                 Ordered list of class labels inferred from directory names.
@@ -79,6 +73,7 @@ class DataLoader:
             batch_size=self.BATCH_SIZE,
             seed=self.SEED
         )
+
         class_names = train_ds.class_names
         num_classes = len(class_names)
         logger.info(f"Classes detected: {class_names}")
@@ -90,20 +85,5 @@ class DataLoader:
             batch_size=self.BATCH_SIZE,
             shuffle=False
         )
-
-        train_ds = train_ds.map(
-            lambda x, y: (self.normalization(x), y),
-            num_parallel_calls=tf.data.AUTOTUNE
-        )
-
-        test_ds = test_ds.map(
-            lambda x, y: (self.normalization(x), y),
-            num_parallel_calls=tf.data.AUTOTUNE
-        )
-
-        train_ds = train_ds.prefetch(tf.data.AUTOTUNE)
-        test_ds = test_ds.prefetch(tf.data.AUTOTUNE)
-
-        logger.info("Data loaded successfully")
 
         return train_ds, test_ds, class_names, num_classes
