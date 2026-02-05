@@ -1,0 +1,7 @@
+# src/constants/config_keys.py
+
+DATA_CONFIG = "data_config"
+MODEL_CONFIG = "model_config"
+OPTIMIZER_CONFIG = "optimizer_config"
+CALLBACKS = "callbacks"
+AUGMENTATION = "augmentation"

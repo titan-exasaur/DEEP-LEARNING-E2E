@@ -1,19 +1,21 @@
-import os, uuid
+import os
+from datetime import datetime
+os.environ["RUN_ID"] = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-# set RUN_ID first
-os.environ["RUN_ID"] = uuid.uuid4().hex[:8]
-
-from src.utilities.logger import app_logger
+from src.utilities.utils import get_logger
 from src.pipelines.data_pipeline import DataPipeline
+from src.pipelines.train_pipeline import TrainingPipeline
 
-logger = app_logger(__name__)
-logger.info(f"Logger initialized | run_id={os.getenv('RUN_ID')}")
+logger = get_logger(__name__)
 
 def main():
     logger.info("Application started")
 
     data_pipeline = DataPipeline()
-    data_pipeline.run()
+    data_artifact = data_pipeline.run()
+
+    training_pipeline = TrainingPipeline()
+    trainer_artifact = training_pipeline.run(data_artifact)
 
     logger.info("Application finished successfully")
 
