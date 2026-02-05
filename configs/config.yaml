@@ -1,0 +1,15 @@
+artifacts_root: artifacts
+
+data:
+  raw_data_dir: data/raw
+  processed_data_dir: data/processed
+  
+artifacts:
+  model_dir: artifacts/model
+  checkpoints_dir: artifacts/checkpoints
+
+logs:
+  log_dir: logs
+
+project_name: brain_tumor_classification
+

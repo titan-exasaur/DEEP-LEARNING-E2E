@@ -1,6 +1,15 @@
 from src.utilities.logger import app_logger
-from src.utilities.utils import data_downloader
+from src.pipelines.data_pipeline import DataPipeline
 
 logger = app_logger(__name__)
 
-data_downloader("surajghuwalewala/ham1000-segmentation-and-classification")
+def main():
+    logger.info("Application started")
+
+    data_pipeline = DataPipeline()
+    data_pipeline.run()
+
+    logger.info("Application finished successfully")
+
+if __name__ == "__main__":
+    main()

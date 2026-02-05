@@ -1,4 +1,4 @@
-import os
+import yaml
 import subprocess
 from pathlib import Path
 from dotenv import load_dotenv
@@ -7,13 +7,14 @@ from src.utilities.logger import app_logger
 logger = app_logger(__name__)
 load_dotenv()
 
-RAW_DATA_PATH = Path(os.getenv("RAW_DATA_PATH", ""))
-if not RAW_DATA_PATH:
-    raise EnvironmentError("RAW_DATA_PATH is not set")
-
-RAW_DATA_PATH.mkdir(parents=True, exist_ok=True)
-
 def data_downloader(kaggle_uri: str) -> None:
+    config = load_config("configs/config.yaml")
+    RAW_DATA_PATH = Path(config["data"]["raw_data_dir"])
+    if not RAW_DATA_PATH.exists():
+        raise EnvironmentError(
+            f"Raw data directory {RAW_DATA_PATH} does not exist"
+        )
+    
     logger.info("Downloading data from kaggle")
 
     subprocess.run(
@@ -34,3 +35,14 @@ def data_downloader(kaggle_uri: str) -> None:
     zip_path.unlink()
 
     logger.info("Data downloaded successfully")
+
+
+def load_config(config_path: str) -> dict:
+    """
+    Loads a YAML configuration file.
+    """
+    with open(config_path, "r") as f:
+        config = yaml.safe_load(f)
+        logger.info(f"Config loaded from {config_path}")
+
+    return config
