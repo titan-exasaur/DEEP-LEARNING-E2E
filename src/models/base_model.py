@@ -41,7 +41,7 @@ class BaseModel(ABC):
             raise RuntimeError("No model to save")
         self.model.save(path)
 
-    @classmethod
-    def load(cls, path: str) -> tf.keras.Model:
-        """Loads a saved model."""
+    @staticmethod
+    def load_model(path: str) -> tf.keras.Model:
         return tf.keras.models.load_model(path)
+

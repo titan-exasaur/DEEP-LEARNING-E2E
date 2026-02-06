@@ -1,8 +1,10 @@
+from pathlib import Path
+import os
 from src.utilities.utils import load_config, get_logger
 from src.models.simple_cnn import SimpleCNN
 from src.entity.data_ingestion_entity import DataIngestionArtifact
 from src.entity.model_trainer_entity import ModelTrainerArtifact
-from src.constants.paths import MODEL_PARAMS_FILE
+from src.constants.paths import MODEL_PARAMS_FILE, MODEL_DIR
 from src.constants.config_keys import MODEL_CONFIG
 from src.constants.training import DEFAULT_INPUT_SHAPE
 
@@ -10,7 +12,7 @@ logger = get_logger(__name__)
 
 class ModelTrainer:
     """
-    Handles model construction, compilation, and training.
+    Handles model construction, compilation, training, and persistence.
     """
 
     def train(
@@ -41,9 +43,20 @@ class ModelTrainer:
             epochs=model_cfg["epochs"]
         )
 
-        logger.info("Model training finished")
+        run_id = os.getenv("RUN_ID")
+        if not run_id:
+            raise EnvironmentError("RUN_ID not found")
+
+        model_dir = Path(MODEL_DIR)
+        model_dir.mkdir(parents=True, exist_ok=True)
+
+        model_path = model_dir / f"{run_id}.keras"
+        model.save(model_path)
+
+        logger.info(f"Model saved at {model_path}")
 
         return ModelTrainerArtifact(
             model=model.model,
-            history=history
+            history=history,
+            model_path=str(model_path)
         )
