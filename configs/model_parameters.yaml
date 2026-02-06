@@ -1,6 +1,6 @@
 data_config:
-  TRAIN_DIR: "data/raw/braintumor/Training"
-  TEST_DIR: "data/raw/braintumor/Testing"
+  TRAIN_DIR: "data/raw/Training"
+  TEST_DIR: "data/raw/Testing"
   VALIDATION_SPLIT: 0.2
   IMG_SIZE: [224, 224]
   BATCH_SIZE: 32
@@ -10,7 +10,7 @@ model_config:
   optimizer: "adam"
   loss: "sparse_categorical_crossentropy"
   metrics: ["accuracy"]
-  epochs: 1
+  epochs: 10
 
 optimizer_config:
   learning_rate: 0.0001

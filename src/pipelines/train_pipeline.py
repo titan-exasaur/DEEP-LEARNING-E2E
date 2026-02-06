@@ -1,5 +1,7 @@
-from src.utilities.utils import load_config, get_logger
-from src.models.simple_cnn import SimpleCNN
+import os
+from src.utilities.utils import get_logger
+from src.training.model_trainer import ModelTrainer
+from src.training.evaluation import ModelEvaluator
 from src.entity.data_ingestion_entity import DataIngestionArtifact
 from src.entity.model_trainer_entity import ModelTrainerArtifact
 
@@ -7,7 +9,7 @@ logger = get_logger(__name__)
 
 class TrainingPipeline:
     """
-    Orchestrates model training.
+    Orchestrates the training and evaluation workflow.
     """
 
     def run(
@@ -17,30 +19,17 @@ class TrainingPipeline:
 
         logger.info("Starting training pipeline")
 
-        config = load_config("configs/model_parameters.yaml")
-        model_cfg = config["model_config"]
+        run_id = os.getenv("RUN_ID")
+        if not run_id:
+            raise RuntimeError("RUN_ID not set in environment")
 
-        model = SimpleCNN()
-        model.build(
-            input_shape=(224, 224, 3),
-            num_classes=data_artifact.num_classes
-        )
+        trainer = ModelTrainer()
+        trainer_artifact = trainer.train(data_artifact)
 
-        model.compile(
-            optimizer=model_cfg["optimizer"],
-            loss=model_cfg["loss"],
-            metrics=model_cfg["metrics"]
-        )
+        evaluator = ModelEvaluator()
+        evaluator.plot_training_curves(trainer_artifact, run_id)
+        evaluator.evaluate(data_artifact, trainer_artifact, run_id)
 
-        history = model.fit(
-            data_artifact.train_ds,
-            validation_data=data_artifact.test_ds,
-            epochs=model_cfg["epochs"]
-        )
+        logger.info("Training pipeline completed")
 
-        logger.info("Training completed successfully")
-
-        return ModelTrainerArtifact(
-            model=model.model,
-            history=history
-        )
+        return trainer_artifact

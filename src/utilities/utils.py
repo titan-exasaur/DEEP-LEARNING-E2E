@@ -4,6 +4,9 @@ from pathlib import Path
 from dotenv import load_dotenv
 from src.utilities.logger import app_logger
 
+from src.constants.paths import GENERAL_CONFIG_FILE
+from src.constants.config_keys import DATA_CONFIG
+
 logger = app_logger(__name__)
 load_dotenv()
 
@@ -17,8 +20,8 @@ def get_logger(name: str):
 
 
 def data_downloader(kaggle_uri: str) -> None:
-    config = load_config("configs/config.yaml")
-    RAW_DATA_PATH = Path(config["data"]["raw_data_dir"])
+    config = load_config(GENERAL_CONFIG_FILE)
+    RAW_DATA_PATH = Path(config[DATA_CONFIG]["raw_data_dir"])
     if not RAW_DATA_PATH.exists():
         raise EnvironmentError(
             f"Raw data directory {RAW_DATA_PATH} does not exist"
