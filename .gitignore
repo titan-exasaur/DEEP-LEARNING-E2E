@@ -18,3 +18,6 @@ mlruns/
 
 # Dev dependencies
 requirements-dev.txt
+
+# MLFlow tracking
+mlflow.db

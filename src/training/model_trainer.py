@@ -41,7 +41,14 @@ class ModelTrainer:
 
         callbacks, best_model_path = self._get_callbacks(run_id)
 
-        model = SimpleCNN()
+        model_type = self.config.get("model_type", "simple_cnn")
+
+        if model_type == "vgg16":
+            from src.models.vgg16_model import VGG16Model
+            model = VGG16Model()
+        else:
+            model = SimpleCNN()
+
         model.build(
             input_shape=DEFAULT_INPUT_SHAPE,
             num_classes=data_artifact.num_classes

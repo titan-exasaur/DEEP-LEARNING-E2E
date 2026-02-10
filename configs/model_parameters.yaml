@@ -35,3 +35,5 @@ augmentation:
   horizontal_flip: True
   rotation: 0.1
   zoom: 0.1
+
+model_type: "vgg16"
